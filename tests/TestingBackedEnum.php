@@ -5,10 +5,10 @@ namespace Natepisarski\RandomEnum\Tests;
 
 use Natepisarski\RandomEnum\RandomEnum;
 
-enum TestingBackedEnum
+enum TestingBackedEnum: string
 {
     use RandomEnum;
-    
+
     case FirstCase = 'first';
     case SecondCase = 'second';
     case ThirdCase = 'third';
