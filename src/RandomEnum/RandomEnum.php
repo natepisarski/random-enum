@@ -4,13 +4,17 @@ declare(strict_types=1);
 namespace Natepisarski\RandomEnum;
 
 use BackedEnum;
-use UnitEnum;
 
 /**
- * Allows you to access random caes and values from an Enum
+ * Allows you to access random cases and values from an Enum.
  */
 trait RandomEnum
 {
+    /**
+     * Gets a random Enum case
+     * @throws \Natepisarski\RandomEnum\RandomEnumSizeException Thrown when the enum has 0 cases
+     * @return mixed
+     */
     public static function randomCase(): static
     {
         $allCases = static::cases();
@@ -31,12 +35,18 @@ trait RandomEnum
         return $allCases[$key];
     }
 
+    /**
+     * Gets a random Enum value if this enum is backed by primitives.
+     * @throws RandomEnumValueException Thrown when the enum is not backed.
+     * @return int|string
+     */
     public static function randomValue(): int|string
     {
-        if (! static::class instanceof BackedEnum) {
+        // Check if the calling class is a BackedEnum
+        if (!is_subclass_of(static::class, BackedEnum::class)) {
             throw new RandomEnumValueException("Enum is not backed by a value");
         }
-
+    
         return static::randomCase()->value;
     }
 
@@ -44,6 +54,7 @@ trait RandomEnum
      * Produces an array of random cases from the Enum.
      * @param int $count
      * @param bool $allowRepeats
+     * @throws RandomEnumSizeException Thrown when the Enum has no cases, or when repeats are forbidden but the count is higher than the number of cases.
      * @return array
      */
     public static function randomCaseArray(int $count, bool $allowRepeats = true): array
@@ -79,7 +90,9 @@ trait RandomEnum
     }
 
     /**
-     * Gets a random array of values
+     * Gets a random array of values from the enum
+     * @throws RandomEnumSizeException Can be thrown if there are no enum cases, or if $count is lower than the number of available cases and repeats are forbidden
+     * @throws RandomEnumValueException Can be thrown if used on a non-backed Enum
      * @return array
      */
     public static function randomValueArray(int $count, bool $allowRepeats = true): array

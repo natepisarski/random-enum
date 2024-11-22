@@ -5,7 +5,9 @@ namespace Natepisarski\RandomEnum\Tests;
 
 use Natepisarski\RandomEnum\RandomEnum;
 
-enum NonBackedEnum : string
+enum NonBackedEnum
 {
     use RandomEnum;
+    case FirstCase;
+    case SecondCase;
 }
