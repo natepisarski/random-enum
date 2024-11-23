@@ -12,7 +12,7 @@ trait RandomEnum
 {
     /**
      * Gets a random Enum case
-     * @throws \Natepisarski\RandomEnum\RandomEnumSizeException Thrown when the enum has 0 cases
+     * @throws RandomEnumSizeException Thrown when the enum has 0 cases
      * @return mixed
      */
     public static function randomCase(): static
@@ -37,14 +37,15 @@ trait RandomEnum
 
     /**
      * Gets a random Enum value if this enum is backed by primitives.
-     * @throws RandomEnumValueException Thrown when the enum is not backed.
+     * @throws RandomEnumValueException|RandomEnumSizeException Thrown when the enum is not backed.
      * @return int|string
      */
     public static function randomValue(): int|string
     {
+        $enumClass = static::class;
         // Check if the calling class is a BackedEnum
         if (!is_subclass_of(static::class, BackedEnum::class)) {
-            throw new RandomEnumValueException("Enum is not backed by a value");
+            throw new RandomEnumValueException("$enumClass is not backed by a value");
         }
     
         return static::randomCase()->value;
@@ -82,7 +83,7 @@ trait RandomEnum
 
         // They are okay with repeats, so we'll just iterate down to the count and pull random cases
         $returned = [];
-        for ($x = $count; $x > 0; $x++) {
+        for ($x = $count; $x > 0; $x--) {
             $returned[] = static::randomCase();
         }
 
@@ -91,12 +92,18 @@ trait RandomEnum
 
     /**
      * Gets a random array of values from the enum
-     * @throws RandomEnumSizeException Can be thrown if there are no enum cases, or if $count is lower than the number of available cases and repeats are forbidden
-     * @throws RandomEnumValueException Can be thrown if used on a non-backed Enum
+     * @param int $count
+     * @param bool $allowRepeats
      * @return array
+     * @throws RandomEnumSizeException|RandomEnumValueException Can be thrown if there are no enum cases, or if $count is lower than the number of available cases and repeats are forbidden
      */
     public static function randomValueArray(int $count, bool $allowRepeats = true): array
     {
+        $enumClass = static::class;
+        if (! is_subclass_of(static::class, BackedEnum::class)) {
+            throw new RandomEnumValueException("$enumClass is not backed by values");
+        }
+
         $values = static::randomCaseArray($count, $allowRepeats); // This line might throw if $count/$allowRepeats cause an issue
         return array_map(fn (mixed $value) => $value->value, $values);
     }
